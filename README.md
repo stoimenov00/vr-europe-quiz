@@ -17,9 +17,12 @@ Tips:
 - Click a name in the lobby to remove a player (e.g. rude nickname).
 - Only the host laptop should have the host page open.
 
-## One-time setup: connect Firebase (about 3 minutes)
+**Live site:** https://stoimenov00.github.io/vr-europe-quiz/
 
-The live sync between the host and the phones uses Firebase Realtime Database (free plan).
+## Firebase (already connected)
+
+The live sync uses the Firebase project `vr-europe-quiz` (Realtime Database, Belgium) in the stoimenov00 Google account.
+The steps below are only needed if you ever want to recreate it in another account.
 
 1. Go to https://console.firebase.google.com and click **Add project** (name it e.g. `vr-quiz`). Google Analytics can be turned off.
 2. In the project, open **Build → Realtime Database → Create database**. Choose the Belgium (europe-west1) location and **Start in test mode**.
