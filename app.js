@@ -12,7 +12,7 @@ function onClean(f) { cleanup.push(f); }
 function clean() { cleanup.forEach(f => { try { f(); } catch (e) { } }); cleanup = []; }
 function sub(p, cb) { onClean(store.onValue(p, cb)); }
 function every(ms, fn) { const t = setInterval(fn, ms); onClean(() => clearInterval(t)); fn(); }
-function base() { return location.origin + location.pathname + location.search; }
+function base() { return location.origin + location.pathname + (/[?&]local=1/.test(location.search) ? "?local=1" : ""); }
 function joinUrl(pin) { return base() + '#/play/' + pin; }
 function go(h) { location.hash = h; }
 function pts(elapsedMs, durMs) { const e = Math.min(Math.max(elapsedMs, 0), durMs); return Math.round(1000 * (1 - (e / durMs) / 2)); }
