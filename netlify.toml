@@ -1,0 +1,9 @@
+# Static site, no build step. Publish the repo root.
+[build]
+  publish = "."
+
+# Always fetch the latest app files so phones never run a stale version.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "no-cache"
