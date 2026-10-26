@@ -114,3 +114,6 @@ input{font:inherit}
 .banner{background:#fff3;border:1px solid #fff5;border-radius:12px;padding:12px 16px;margin-bottom:14px;font-weight:700}
 .setup{max-width:640px;background:#fff;color:var(--ink);border-radius:var(--radius);padding:24px;text-align:left}
 .setup code{background:#eee;padding:2px 6px;border-radius:6px}
+
+/* Keep controls clear of the hosting badge in the bottom-right corner */
+.screen{padding-bottom:72px}

@@ -17,7 +17,7 @@ Tips:
 - Click a name in the lobby to remove a player (e.g. rude nickname).
 - Only the host laptop should have the host page open.
 
-**Live site:** https://stoimenov00.github.io/vr-europe-quiz/
+**Live site:** https://vr-europe-quiz.netlify.app/ (also mirrored at https://stoimenov00.github.io/vr-europe-quiz/)
 
 ## Firebase (already connected)
 
@@ -58,4 +58,5 @@ Open the site with `?local=1` (or on localhost). Everything then works inside on
 
 ## Hosting
 
-Static hosting anywhere (GitHub Pages, Netlify, Vercel). Just upload the folder.
+Netlify project `vr-europe-quiz`, connected to this GitHub repo: every push to `main` redeploys automatically.
+`netlify.toml` sets no build step and no-cache headers. GitHub Pages also serves the same files.
