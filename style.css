@@ -125,3 +125,6 @@ input{font:inherit}
 .start-hint{font-weight:700;color:var(--accent);align-self:center;text-align:right}
 .btn:disabled{filter:grayscale(.6)}
 .pad-hint{margin:0 0 10px;text-align:center;font-weight:800;font-size:17px}
+
+/* Host buttons always visible, sitting just above the hosting badge */
+.footer-actions{position:sticky;bottom:56px;z-index:5;padding:10px 0 0}
