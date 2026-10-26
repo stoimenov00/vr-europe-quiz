@@ -117,3 +117,11 @@ input{font:inherit}
 
 /* Keep controls clear of the hosting badge in the bottom-right corner */
 .screen{padding-bottom:72px}
+
+/* Lobby instructions and start status */
+.howto{margin:0 0 18px;padding:14px 16px 14px 34px;background:rgba(255,255,255,.1);border-radius:12px;font-size:16px;line-height:1.45}
+.howto li{margin:4px 0}
+.waiting{margin:0;color:rgba(255,255,255,.7);font-weight:700}
+.start-hint{font-weight:700;color:var(--accent);align-self:center;text-align:right}
+.btn:disabled{filter:grayscale(.6)}
+.pad-hint{margin:0 0 10px;text-align:center;font-weight:800;font-size:17px}

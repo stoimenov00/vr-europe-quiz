@@ -127,8 +127,13 @@ function hostGame(pin) {
             <div class="pin">${esc(pin)}</div>
           </div>
           <div class="players-wrap">
+            <ol class="howto">
+              <li>Учениците го скенираат <b>QR кодот</b> со телефон (или го отвораат линкот и го внесуваат <b>PIN-от</b>).</li>
+              <li>Секој го внесува своето име и притиска <b>Влези</b>. Имињата се појавуваат подолу.</li>
+              <li>Кога сите се внатре, кликни <b>Старт</b>. Одговараат на телефонот со боите ▲ ◆ ● ■.</li>
+            </ol>
             <h3>Играчи: <span id="pcount">0</span></h3>
-            <div class="players" id="players"></div>
+            <div class="players" id="players"><p class="waiting" id="waiting">⏳ Се чекаат играчи…</p></div>
             <p class="muted" style="font-size:14px">Клик на име за да отстраниш играч.</p>
             <div class="settings">
               <label>Време по прашање
@@ -138,7 +143,7 @@ function hostGame(pin) {
             </div>
           </div>
         </div>
-        <div class="footer-actions"><button class="btn accent sm" id="start" disabled style="font-size:20px;padding:14px 34px">Старт ▶</button></div>
+        <div class="footer-actions"><span class="start-hint" id="startHint">Старт е достапен кога ќе се приклучи барем еден играч</span><button class="btn accent sm" id="start" disabled style="font-size:20px;padding:14px 34px">Старт ▶</button></div>
       </div>`);
       try { new QRCode(document.getElementById('qr'), { text: joinUrl(pin), width: 200, height: 200, correctLevel: QRCode.CorrectLevel.M }); } catch (e) { }
       document.getElementById('dur').onchange = e => store.set(`${P}/public/duration`, Number(e.target.value));
@@ -206,11 +211,18 @@ function hostGame(pin) {
       const pc = document.getElementById('pcount'); if (pc) pc.textContent = list.length;
       const box = document.getElementById('players');
       if (box) {
-        const have = new Set([...box.children].map(el => el.dataset.id));
+        const chips = () => [...box.querySelectorAll('.player')];
+        const have = new Set(chips().map(el => el.dataset.id));
         list.forEach(p => { if (!have.has(p.id)) { const el = document.createElement('div'); el.className = 'player'; el.dataset.id = p.id; el.textContent = p.name; box.appendChild(el); } });
-        [...box.children].forEach(el => { if (!list.find(p => p.id === el.dataset.id)) el.remove(); });
+        chips().forEach(el => { if (!list.find(p => p.id === el.dataset.id)) el.remove(); });
+        const w = document.getElementById('waiting'); if (w) w.hidden = list.length > 0;
       }
-      const st = document.getElementById('start'); if (st) st.disabled = list.length === 0;
+      const st = document.getElementById('start');
+      if (st) {
+        st.disabled = list.length === 0;
+        st.textContent = list.length ? `Старт ▶ (${list.length})` : 'Старт ▶';
+      }
+      const hint = document.getElementById('startHint'); if (hint) hint.hidden = list.length > 0;
     }
     if (s === 'question') {
       const n = count(g.answers && g.answers[qi]), total = count(g.players);
@@ -340,11 +352,13 @@ function playGame(pin, myId) {
     const s = pub.state, qi = pub.qIndex, q = Q[qi];
     if (s === 'lobby') {
       render(`<div class="screen">${header()}<div class="center" style="flex:1;display:flex;flex-direction:column">
-        <div class="big">🎉</div><h2>Внатре си, ${esc(me.name)}!</h2><p class="muted">Погледни го големиот екран. Квизот почнува наскоро…</p></div></div>`);
+        <div class="big">🎉</div><h2>Внатре си, ${esc(me.name)}!</h2><p class="muted">Го гледаш своето име на големиот екран? Супер!<br>Почекај водителот да кликне Старт.</p>
+        <p class="muted" style="margin-top:18px;font-size:14px">Кога ќе почне: прашањето е на големиот екран, а ти ја притискаш бојата на одговорот на телефонот. Побрзиот точен одговор носи повеќе поени.</p></div></div>`);
     }
     if (s === 'question' && answered !== qi) {
       render(`<div class="screen">${header()}
         <div class="row" style="justify-content:space-between;margin-bottom:12px"><span class="pill">Прашање ${qi + 1} / ${Q.length}</span><span class="pill" id="ptimer">${pub.duration}</span></div>
+        <p class="pad-hint">Притисни го точниот одговор 👇</p>
         <div class="pads">${q.a.map((a, i) => `<button class="pad c${i}" data-i="${i}"><span class="shape">${SHAPES[i]}</span>${LETTERS[i]}${pub.showText ? `<small>${esc(a)}</small>` : ''}</button>`).join('')}</div>
       </div>`);
       document.querySelector('.pads').onclick = async e => {
