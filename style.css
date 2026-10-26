@@ -127,4 +127,4 @@ input{font:inherit}
 .pad-hint{margin:0 0 10px;text-align:center;font-weight:800;font-size:17px}
 
 /* Host buttons always visible, sitting just above the hosting badge */
-.footer-actions{position:sticky;bottom:56px;z-index:5;padding:10px 0 0}
+.footer-actions{position:sticky;bottom:56px;z-index:5;width:fit-content;max-width:100%;margin-left:auto;margin-top:auto;padding:10px 12px;background:rgba(32,18,74,.94);border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
