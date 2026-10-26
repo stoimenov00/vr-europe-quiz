@@ -8,10 +8,11 @@ live scoreboard after every question, and a 🥇🥈🥉 podium at the end.
 
 1. Open the site on the projector laptop → **Јас сум водител** → **Создади игра**.
 2. Students scan the QR code (or open the site and type the 6-digit PIN), enter a name.
-3. Press **Старт**. Each question: timer (default 20 s) → results → scoreboard → next.
+3. Press **Старт** (it stays grey until at least one student has joined, then shows the player count). Each question: timer (default 20 s) → results → scoreboard → next.
 4. After the last question press **Победници** for the podium with the top 3.
 
 Tips:
+- Students answer on their phone by tapping the colour/shape (▲ red, ◆ blue, ● yellow, ■ green) that matches the answer on the big screen.
 - If the host browser is refreshed or closed, just open the same link again — the game continues.
 - If a student's phone reloads, they are automatically put back into the game with their score.
 - Click a name in the lobby to remove a player (e.g. rude nickname).
