@@ -4,9 +4,9 @@ const SHAPES = ['▲', '◆', '●', '■'];
 const LETTERS = ['A', 'B', 'C', 'D'];
 const COLORS = ['#e21b3c', '#1368ce', '#d89e00', '#26890c'];
 const OWNER_EMAIL = 'stoimenov00@gmail.com';
-// Username logins are stored in Firebase as <username>@USER_DOMAIN (never emailed).
-const USER_DOMAIN = 'vr-europe-quiz.firebaseapp.com';
-const SHARED_ADMINS = ['innoverse@' + USER_DOMAIN];
+// Shared event logins: the username typed on the admin page maps to this Firebase account.
+const USERNAMES = { innoverse: 'event@innoverse.mk' };
+const SHARED_ADMINS = Object.values(USERNAMES);
 const BUILTIN_ID = 'vr-europe';
 const TIME_OPTIONS = [5, 10, 15, 20, 30, 45, 60, 90, 120];
 const POINT_OPTIONS = [[1000, 'Стандардни (до 1000)'], [2000, 'Двојни (до 2000)'], [0, 'Без поени']];
@@ -142,8 +142,8 @@ function adminShell(inner, user) {
       <div class="row">${user ? `<span class="pill">${esc(userLabel(user))}</span>${user.local ? '' : '<button class="btn ghost sm" id="signout">Одјави се</button>'}` : ''}<a class="btn ghost sm" href="#/">Почетна</a></div></div>
     ${inner}</div>`;
 }
-function userLabel(u) { const e = (u && u.email) || ''; return e.endsWith('@' + USER_DOMAIN) ? e.slice(0, -USER_DOMAIN.length - 1) : e; }
-function usernameToEmail(name) { name = String(name || '').trim().toLowerCase(); return name.includes('@') ? name : name + '@' + USER_DOMAIN; }
+function userLabel(u) { const e = ((u && u.email) || '').toLowerCase(); const n = Object.keys(USERNAMES).find(k => USERNAMES[k] === e); return n ? n.charAt(0).toUpperCase() + n.slice(1) : e; }
+function usernameToEmail(name) { name = String(name || '').trim().toLowerCase(); return USERNAMES[name] || name; }
 function wireSignout() { const b = document.getElementById('signout'); if (b) b.onclick = async () => { await store.signOut(); }; }
 
 async function adminHome() {
