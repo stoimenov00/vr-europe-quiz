@@ -4,6 +4,9 @@ const SHAPES = ['▲', '◆', '●', '■'];
 const LETTERS = ['A', 'B', 'C', 'D'];
 const COLORS = ['#e21b3c', '#1368ce', '#d89e00', '#26890c'];
 const OWNER_EMAIL = 'stoimenov00@gmail.com';
+// Username logins are stored in Firebase as <username>@USER_DOMAIN (never emailed).
+const USER_DOMAIN = 'vr-europe-quiz.firebaseapp.com';
+const SHARED_ADMINS = ['innoverse@' + USER_DOMAIN];
 const BUILTIN_ID = 'vr-europe';
 const TIME_OPTIONS = [5, 10, 15, 20, 30, 45, 60, 90, 120];
 const POINT_OPTIONS = [[1000, 'Стандардни (до 1000)'], [2000, 'Двојни (до 2000)'], [0, 'Без поени']];
@@ -80,7 +83,7 @@ const authWaiters = [];
 function waitAuth() { return authState.ready ? Promise.resolve(authState.user) : new Promise(r => authWaiters.push(r)); }
 function isOwner(u) { return !!u && (u.local || (u.email || '').toLowerCase() === OWNER_EMAIL); }
 async function isAdmin(u) {
-  if (!u) return false; if (isOwner(u)) return true;
+  if (!u) return false; if (isOwner(u) || SHARED_ADMINS.includes((u.email || '').toLowerCase())) return true;
   try { return (await store.get('admins/' + emailKey(u.email))) === true; } catch (e) { return false; }
 }
 function authErr(e) {
@@ -88,7 +91,10 @@ function authErr(e) {
   if (c === 'auth/popup-closed-by-user' || c === 'auth/cancelled-popup-request') return '';
   if (c === 'auth/popup-blocked') return 'Прелистувачот го блокира прозорецот за најава. Дозволи pop-up прозорци за оваа страница и обиди се пак.';
   if (c === 'auth/unauthorized-domain') return 'Овој домен не е дозволен за најава во Firebase (Authentication → Settings → Authorized domains).';
-  if (c === 'auth/operation-not-allowed') return 'Најавата со Google не е вклучена во Firebase.';
+  if (c === 'auth/operation-not-allowed') return 'Овој начин на најава не е вклучен во Firebase.';
+  if (['auth/invalid-credential', 'auth/wrong-password', 'auth/user-not-found', 'auth/invalid-login-credentials', 'auth/invalid-email'].includes(c)) return 'Погрешно корисничко име или лозинка.';
+  if (c === 'auth/too-many-requests') return 'Премногу неуспешни обиди. Почекај малку па обиди се пак.';
+  if (c === 'auth/network-request-failed') return 'Нема интернет врска.';
   return 'Најавата не успеа: ' + (e && e.message || e);
 }
 
@@ -133,9 +139,11 @@ function renderSetup() {
 function adminShell(inner, user) {
   return `<div class="screen admin">
     <div class="topbar"><h1 class="brand" style="font-size:22px"><a href="#/admin" class="plain">⚙️ Админ панел</a></h1>
-      <div class="row">${user ? `<span class="pill">${esc(user.email)}</span>${user.local ? '' : '<button class="btn ghost sm" id="signout">Одјави се</button>'}` : ''}<a class="btn ghost sm" href="#/">Почетна</a></div></div>
+      <div class="row">${user ? `<span class="pill">${esc(userLabel(user))}</span>${user.local ? '' : '<button class="btn ghost sm" id="signout">Одјави се</button>'}` : ''}<a class="btn ghost sm" href="#/">Почетна</a></div></div>
     ${inner}</div>`;
 }
+function userLabel(u) { const e = (u && u.email) || ''; return e.endsWith('@' + USER_DOMAIN) ? e.slice(0, -USER_DOMAIN.length - 1) : e; }
+function usernameToEmail(name) { name = String(name || '').trim().toLowerCase(); return name.includes('@') ? name : name + '@' + USER_DOMAIN; }
 function wireSignout() { const b = document.getElementById('signout'); if (b) b.onclick = async () => { await store.signOut(); }; }
 
 async function adminHome() {
@@ -143,17 +151,32 @@ async function adminHome() {
   const user = await waitAuth();
   if (!user) {
     render(adminShell(`<div class="card center-card"><h2>Најава за модератори</h2>
-      <p class="sub">Најави се со Google сметка за да ги уредуваш квизовите. Само додадените модератори можат да прават промени.</p>
-      <p class="err" id="err"></p><button class="btn accent" id="signin">Најави се со Google</button></div>`));
+      <form id="pwForm" class="login-form" autocomplete="on">
+        <input class="in" id="lgUser" name="username" autocomplete="username" placeholder="Корисничко име" autocapitalize="none" spellcheck="false">
+        <input class="in" id="lgPass" name="password" type="password" autocomplete="current-password" placeholder="Лозинка">
+        <button class="btn accent" id="pwBtn" type="submit">Најави се</button>
+      </form>
+      <p class="err" id="err"></p>
+      <div class="or"><span>или</span></div>
+      <button class="btn light" id="signin">Најави се со Google</button></div>`));
+    const err = document.getElementById('err');
+    document.getElementById('pwForm').onsubmit = async e => {
+      e.preventDefault(); err.textContent = '';
+      const u = document.getElementById('lgUser').value, p = document.getElementById('lgPass').value;
+      if (!u.trim() || !p) { err.textContent = 'Внеси корисничко име и лозинка.'; return; }
+      const b = document.getElementById('pwBtn'); b.disabled = true;
+      try { await store.signInWithPassword(usernameToEmail(u), p); } catch (x) { err.textContent = authErr(x); b.disabled = false; }
+    };
     document.getElementById('signin').onclick = async () => {
-      const err = document.getElementById('err'); err.textContent = '';
+      err.textContent = '';
       try { await store.signIn(); } catch (e) { err.textContent = authErr(e); }
     };
+    document.getElementById('lgUser').focus();
     return;
   }
   if (!(await isAdmin(user))) {
     render(adminShell(`<div class="card center-card"><h2>Немаш пристап за уредување</h2>
-      <p class="sub">Сметката <b>${esc(user.email)}</b> не е модератор. Побарај од сопственикот (${esc(OWNER_EMAIL)}) да те додаде, па освежи ја страницата.</p></div>`, user));
+      <p class="sub">Сметката <b>${esc(userLabel(user))}</b> не е модератор. Побарај од сопственикот (${esc(OWNER_EMAIL)}) да те додаде, па освежи ја страницата.</p></div>`, user));
     wireSignout(); return;
   }
   let quizzes = [];

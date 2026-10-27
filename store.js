@@ -46,6 +46,7 @@
     onDisconnectSet() { }
     onAuth(cb) { setTimeout(() => cb({ email: 'local@test', name: 'Локален тест', local: true }), 0); }
     async signIn() { }
+    async signInWithPassword() { }
     async signOut() { }
   }
 
@@ -85,6 +86,7 @@
       p.setCustomParameters({ prompt: 'select_account' });
       return firebase.auth().signInWithPopup(p);
     }
+    signInWithPassword(email, password) { return firebase.auth().signInWithEmailAndPassword(email, password); }
     signOut() { return firebase.auth().signOut(); }
   }
 

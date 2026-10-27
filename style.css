@@ -200,3 +200,8 @@ textarea.in{resize:vertical;font-size:18px;line-height:1.35}
 .pads.two{grid-template-columns:1fr}
 .paused{position:fixed;inset:0;background:rgba(20,10,50,.88);display:grid;place-items:center;text-align:center;font-size:64px;font-weight:900;z-index:20}
 .paused small{font-size:22px}
+
+/* admin login */
+.login-form{display:grid;gap:10px;margin-top:6px}
+.or{display:flex;align-items:center;gap:10px;color:var(--muted);font-weight:700;margin:4px 0 12px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:#e2ddef}
