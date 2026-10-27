@@ -44,6 +44,9 @@
       return () => { this.listeners = this.listeners.filter(x => x !== l); };
     }
     onDisconnectSet() { }
+    onAuth(cb) { setTimeout(() => cb({ email: 'local@test', name: 'Локален тест', local: true }), 0); }
+    async signIn() { }
+    async signOut() { }
   }
 
   class FirebaseStore {
@@ -73,6 +76,16 @@
       return () => r.off('value', h);
     }
     onDisconnectSet(p, v) { this.db.ref(p).onDisconnect().set(v); }
+    onAuth(cb) {
+      if (!firebase.auth) { setTimeout(() => cb(null), 0); return; }
+      firebase.auth().onAuthStateChanged(u => cb(u ? { email: (u.email || '').toLowerCase(), name: u.displayName || '', uid: u.uid } : null));
+    }
+    signIn() {
+      const p = new firebase.auth.GoogleAuthProvider();
+      p.setCustomParameters({ prompt: 'select_account' });
+      return firebase.auth().signInWithPopup(p);
+    }
+    signOut() { return firebase.auth().signOut(); }
   }
 
   window.createStore = function () {
